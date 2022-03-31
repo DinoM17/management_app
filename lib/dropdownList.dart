@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 class DropdownList extends StatelessWidget {
   final String dropdownValue;
   final dropdownFunction;
-  final values = ["", "Dino", "Lejla"];
+  List<String> values;
   DropdownList(
-      {required this.dropdownValue, required this.dropdownFunction, Key? key})
+      {required this.dropdownValue,
+      required this.dropdownFunction,
+      required this.values,
+      Key? key})
       : super(key: key);
 
   @override
