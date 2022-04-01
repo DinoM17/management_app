@@ -17,7 +17,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _dropdownValue = '';
-  List<String> values = ["", "Dino", "Lejla"];
+  List<String> values = [""];
+  DateTime now = DateTime.now();
   TextEditingController additionalValueController = TextEditingController();
 
   Future<String> get _localPath async {
@@ -27,22 +28,30 @@ class _MyAppState extends State<MyApp> {
 
   Future<File> get _localFile async {
     final path = await _localPath;
-    return File('$path/list.txt');
+    return File('$path/list1.txt');
   }
 
-  Future<String> readList() async {
+  Future<List<String>> readList() async {
     try {
       final file = await _localFile;
       final contents = await file.readAsString();
-      return contents;
+      if (contents == "") {
+        return [""];
+      }
+      return contents.split(';');
     } catch (e) {
-      return "";
+      return [""];
     }
   }
 
-  Future<File> writeList(String contents) async {
+  Future<File> writeList() async {
     final file = await _localFile;
-    return file.writeAsString(contents);
+    String contents = "";
+    for (String i in values) {
+      contents += i;
+      contents += ';';
+    }
+    return file.writeAsString(contents.substring(0, contents.length - 1));
   }
 
   void _onDropdownSelect(String? newValue) {
@@ -63,7 +72,7 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       if (additionalValueController.text != "") {
         values.add(additionalValueController.text);
-        writeList(additionalValueController.text);
+        writeList();
         additionalValueController.clear();
       }
     });
@@ -72,11 +81,9 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    readList().then((String value) {
+    readList().then((List<String> value) {
       setState(() {
-        if (value != "") {
-          values.add(value);
-        }
+        values = value;
       });
     });
   }
@@ -107,7 +114,8 @@ class _MyAppState extends State<MyApp> {
                 dropdownValue: _dropdownValue,
                 dropdownFunction: _onDropdownSelect,
                 values: values,
-              )
+              ),
+              Text('$now'),
             ],
           ),
         ),
