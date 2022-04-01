@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dropdownList.dart';
+import 'dart:io';
+import 'dart:async';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,8 +17,34 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _dropdownValue = '';
-  List<String> _values = ["", "Dino", "Lejla"];
+  List<String> values = ["", "Dino", "Lejla"];
   TextEditingController additionalValueController = TextEditingController();
+
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/list.txt');
+  }
+
+  Future<String> readList() async {
+    try {
+      final file = await _localFile;
+      final contents = await file.readAsString();
+      return contents;
+    } catch (e) {
+      return "";
+    }
+  }
+
+  Future<File> writeList(String contents) async {
+    final file = await _localFile;
+    return file.writeAsString(contents);
+  }
+
   void _onDropdownSelect(String? newValue) {
     setState(() {
       _dropdownValue = newValue!;
@@ -33,9 +62,22 @@ class _MyAppState extends State<MyApp> {
   void _onTextFieldCompleted() {
     setState(() {
       if (additionalValueController.text != "") {
-        _values.add(additionalValueController.text);
+        values.add(additionalValueController.text);
+        writeList(additionalValueController.text);
         additionalValueController.clear();
       }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    readList().then((String value) {
+      setState(() {
+        if (value != "") {
+          values.add(value);
+        }
+      });
     });
   }
 
@@ -64,7 +106,7 @@ class _MyAppState extends State<MyApp> {
               DropdownList(
                 dropdownValue: _dropdownValue,
                 dropdownFunction: _onDropdownSelect,
-                values: _values,
+                values: values,
               )
             ],
           ),
