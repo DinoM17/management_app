@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'dropdownList.dart';
 import 'dart:io';
@@ -18,6 +20,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _dropdownValue = '';
   List<String> values = [""];
+  Map<String, dynamic> jsonLista = {"key": 2}; //jsonEncode, jsonDecode
   DateTime now = DateTime.now();
   TextEditingController additionalValueController = TextEditingController();
 
@@ -71,8 +74,10 @@ class _MyAppState extends State<MyApp> {
   void _onTextFieldCompleted() {
     setState(() {
       if (additionalValueController.text != "") {
-        values.add(additionalValueController.text);
-        writeList();
+        if (!values.contains(additionalValueController.text)) {
+          values.add(additionalValueController.text);
+          writeList();
+        }
         additionalValueController.clear();
       }
     });
